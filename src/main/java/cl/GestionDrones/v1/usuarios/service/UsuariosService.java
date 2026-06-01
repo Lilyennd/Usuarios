@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import cl.GestionDrones.v1.usuarios.dto.CreateUsuarioRequest;
 import cl.GestionDrones.v1.usuarios.dto.UpdateUsuarioRequest;
 import cl.GestionDrones.v1.usuarios.exception.EmailException;
+import cl.GestionDrones.v1.usuarios.exception.ResourceNotFoundException;
 import cl.GestionDrones.v1.usuarios.mapper.UsuariosMapper;
 import cl.GestionDrones.v1.usuarios.model.Usuarios;
 import cl.GestionDrones.v1.usuarios.repository.UsuariosRepository;
@@ -25,7 +26,7 @@ public class UsuariosService {
 
     public Usuarios obtenerPorId(Integer id) {
     return usuariosRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con el ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con el ID: " + id));
     }
 
     public Usuarios crear(CreateUsuarioRequest request) {
