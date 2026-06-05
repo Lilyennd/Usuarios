@@ -1,11 +1,14 @@
 package cl.GestionDrones.v1.usuarios.service;
 
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cl.GestionDrones.v1.usuarios.client.PilotosWebClient;
 import cl.GestionDrones.v1.usuarios.dto.CreateUsuarioRequest;
+import cl.GestionDrones.v1.usuarios.dto.PilotoResponse;
 import cl.GestionDrones.v1.usuarios.dto.UpdateUsuarioRequest;
-import cl.GestionDrones.v1.usuarios.exception.EmailException;
 import cl.GestionDrones.v1.usuarios.exception.ResourceNotFoundException;
 import cl.GestionDrones.v1.usuarios.mapper.UsuariosMapper;
 import cl.GestionDrones.v1.usuarios.model.Usuarios;
@@ -13,53 +16,68 @@ import cl.GestionDrones.v1.usuarios.repository.UsuariosRepository;
 
 @Service
 public class UsuariosService {
-    
-    private final UsuariosRepository usuariosRepository;
 
-    public UsuariosService(UsuariosRepository usuariosRepository) {
-        this.usuariosRepository = usuariosRepository;
+    @Autowired
+    private UsuariosRepository usuarioRepository;
+
+    @Autowired
+    private PilotosWebClient pilotosWebClient;
+
+    public List<Usuarios> getUsuarios() {
+        return usuarioRepository.findAll();
     }
 
-    public List<Usuarios> listarTodos() {
-        return usuariosRepository.findAll();
+    public Usuarios saveUsuario(CreateUsuarioRequest request) {
+        Usuarios nuevoUsuario = UsuariosMapper.toUsuario(request);
+        return usuarioRepository.save(nuevoUsuario);
     }
 
-    public Usuarios obtenerPorId(Integer id) {
-    return usuariosRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con el ID: " + id));
+    public Usuarios getUsuarioId(Integer id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    "El usuario con ID " + id + " no existe."));
     }
 
-    public Usuarios crear(CreateUsuarioRequest request) {
-    if (usuariosRepository.existsByCorreo(request.correo())) {
-        // Lanzamos tu nueva excepción específica
-        throw new EmailException("El correo '" + request.correo() + "' ya se encuentra registrado");
-    }
-    
-    Usuarios nuevoUsuario = UsuariosMapper.toEntity(request);
-    return usuariosRepository.save(nuevoUsuario);
-}
+    public Usuarios updateUsuario(Integer id, UpdateUsuarioRequest request) {
+        Usuarios usuarioExistente = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    "No se puede actualizar: El usuario con ID " + id + " no existe."));
 
-public Usuarios actualizar(Integer id, UpdateUsuarioRequest request) {
-    Usuarios usuarioExistente = usuariosRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con el ID: " + id));
-    if (request.password() != null && !request.password().isBlank()) {
-        usuarioExistente.setPassword(request.password());
+        UsuariosMapper.updateFromDto(request, usuarioExistente);
+        return usuarioRepository.save(usuarioExistente);
     }
 
-    if (request.correo() != null && !request.correo().isBlank()) {
-        if (!usuarioExistente.getCorreo().equals(request.correo()) && 
-            usuariosRepository.existsByCorreo(request.correo())) {
-            throw new EmailException("El correo '" + request.correo() + "' ya está en uso por otro usuario");
+    public String deleteUsuario(Integer id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new ResourceNotFoundException(
+                "No se puede eliminar: El usuario con ID " + id + " no existe.");
         }
-        usuarioExistente.setCorreo(request.correo());
+        usuarioRepository.deleteById(id);
+        return "Usuario eliminado exitosamente.";
     }
-    return usuariosRepository.save(usuarioExistente);
+
+    public int totalUsuarios() {
+        return (int) usuarioRepository.count();
+    }
+
+    public Usuarios obtenerPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                    "El usuario con correo " + email + " no existe."));
+    }
+
+
+    public List<PilotoResponse> obtenerTodosPilotos() {
+        return pilotosWebClient.obtenerTodosPilotos();
+    }
+
+    public PilotoResponse obtenerPilotoPorRun(String run) {
+        PilotoResponse piloto = pilotosWebClient.obtenerPilotoPorRun(run);
+        if (piloto == null) {
+            throw new ResourceNotFoundException("No se encontró el piloto con RUN: " + run);
+        }
+        return piloto;
+    }
 }
 
-    public void eliminar(Integer id) {
-        if (!usuariosRepository.existsById(id)) {
-            throw new RuntimeException("No se puede eliminar, usuario no encontrado con el ID: " + id);
-        }
-        usuariosRepository.deleteById(id);
-    }
-}
+

@@ -1,8 +1,12 @@
 package cl.GestionDrones.v1.usuarios.model;
 
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usuarios")
@@ -10,53 +14,70 @@ public class Usuarios {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Integer id;
+    private Integer  id;
 
-    @Column(name = "correo", nullable = false, unique = true, length = 100)
-    private String correo;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-    @Column(name = "password", nullable = false, length = 255)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "rol", nullable = false, length = 30)
+    @Column(nullable = false)
     private String rol;
 
-    @Column(name = "activo", nullable = false)
-    private Boolean activo = true;
+    @Column(unique = true, nullable = false)
+    private String run;
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false)
-    private LocalDateTime fechaCreacion;
 
-    public Usuarios() {}
+    public Usuarios() {
+    }
 
-    public Usuarios(String correo, String password, String rol) {
-        this.correo = correo;
+    public Usuarios(Integer  id, String email, String password, String rol, String run) {
+        this.id = id;
+        this.email = email;
         this.password = password;
         this.rol = rol;
-        this.activo = true;
+        this.run = run;
     }
 
-    @PrePersist
-    protected void onCreate() {
-        this.fechaCreacion = LocalDateTime.now();
+  
+    public Integer  getId() {
+        return id;
     }
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public void setId(Integer  id) {
+        this.id = id;
+    }
 
-    public String getCorreo() { return correo; }
-    public void setCorreo(String correo) { this.correo = correo; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public String getRol() { return rol; }
-    public void setRol(String rol) { this.rol = rol; }
+    public String getPassword() {
+        return password;
+    }
 
-    public Boolean getActivo() { return activo; }
-    public void setActivo(Boolean activo) { this.activo = activo; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
-}   
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+
+    public String getRun() {
+        return run;
+    }
+
+    public void setRun(String run) {
+        this.run = run;
+    }
+}
