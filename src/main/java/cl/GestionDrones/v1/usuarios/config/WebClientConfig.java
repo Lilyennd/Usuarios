@@ -7,8 +7,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Bean
-    public WebClient pilotosWC(WebClient.Builder builder) {
-        return builder.baseUrl("http://localhost:8081/api/v1/pilotos").build();
+    @Bean(name = "pilotosWC") 
+    public WebClient pilotosWC() {
+        return WebClient.builder()
+                .baseUrl("http://localhost:8081/api/v1/pilotos")
+                .build();
     }
 }

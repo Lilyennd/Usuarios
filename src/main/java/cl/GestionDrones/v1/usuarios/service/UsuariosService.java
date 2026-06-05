@@ -60,13 +60,6 @@ public class UsuariosService {
         return (int) usuarioRepository.count();
     }
 
-    public Usuarios obtenerPorEmail(String email) {
-        return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                    "El usuario con correo " + email + " no existe."));
-    }
-
-
     public List<PilotoResponse> obtenerTodosPilotos() {
         return pilotosWebClient.obtenerTodosPilotos();
     }

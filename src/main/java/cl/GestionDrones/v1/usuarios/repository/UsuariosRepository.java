@@ -10,7 +10,4 @@ import org.springframework.stereotype.Repository;
 public interface UsuariosRepository extends JpaRepository<Usuarios, Integer> {
 
 
-     Optional<Usuarios> findByEmail(String email);
-
-
 }
